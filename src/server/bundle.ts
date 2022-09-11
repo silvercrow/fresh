@@ -1,6 +1,5 @@
-import { BuildOptions } from "https://deno.land/x/esbuild@v0.14.51/mod.js";
 import { BUILD_ID } from "./constants.ts";
-import { denoPlugin, esbuild, toFileUrl } from "./deps.ts";
+import { denoPlugin, esbuild, esbuildTypes, toFileUrl } from "./deps.ts";
 import { Island, Plugin } from "./types.ts";
 
 export interface JSXConfig {
@@ -54,11 +53,20 @@ export class Bundler {
   }
 
   async bundle() {
+    const importMapText = await Deno.readTextFile(this.#importMapURL);
+    const importMap = JSON.parse(importMapText);
+
+    const entrypointBase = "../../src/runtime/entrypoints";
     const entryPoints: Record<string, string> = {
       main: this.#dev
-        ? new URL("../../src/runtime/main_dev.ts", import.meta.url).href
-        : new URL("../../src/runtime/main.ts", import.meta.url).href,
+        ? new URL(`${entrypointBase}/main_dev.ts`, import.meta.url).href
+        : new URL(`${entrypointBase}/main.ts`, import.meta.url).href,
     };
+
+    if (importMap.imports["@preact/signals"] !== undefined) {
+      entryPoints.signals =
+        new URL(`${entrypointBase}/signals.ts`, import.meta.url).href;
+    }
 
     for (const island of this.#islands) {
       entryPoints[`island-${island.id}`] = island.url;
@@ -74,7 +82,7 @@ export class Bundler {
     await ensureEsbuildInitialized();
     // In dev-mode we skip identifier minification to be able to show proper
     // component names in Preact DevTools instead of single characters.
-    const minifyOptions: Partial<BuildOptions> = this.#dev
+    const minifyOptions: Partial<esbuildTypes.BuildOptions> = this.#dev
       ? { minifyIdentifiers: false, minifySyntax: true, minifyWhitespace: true }
       : { minify: true };
     const bundle = await esbuild.build({
@@ -99,8 +107,8 @@ export class Bundler {
       jsx: JSX_RUNTIME_MODE[this.#jsxConfig.jsx],
       jsxImportSource: this.#jsxConfig.jsxImportSource,
     });
-    // const metafileOutputs = bundle.metafile!.outputs;
 
+    // const metafileOutputs = bundle.metafile!.outputs;
     // for (const path in metafileOutputs) {
     //   const meta = metafileOutputs[path];
     //   const imports = meta.imports
