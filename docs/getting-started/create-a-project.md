@@ -34,9 +34,9 @@ files that are strictly necessary to run a fresh project:
 A **`deno.json`** file is also created in the project directory. This file does
 two things:
 
-- It defines the "imports" field. This is an [import map][import-map] that is used to
-  manage dependencies for the project. This allows for easy importing and
-  updating of dependencies.
+- It defines the "imports" field. This is an [import map][import-map] that is
+  used to manage dependencies for the project. This allows for easy importing
+  and updating of dependencies.
 - It registers a "start" [task][task-runner] to run the project without having
   to type a long `deno run` command.
 

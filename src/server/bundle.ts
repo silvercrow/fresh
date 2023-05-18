@@ -98,7 +98,9 @@ export class Bundler {
       absWorkingDir,
       outfile: "",
       platform: "neutral",
-      plugins: [...denoPlugins({ importMapURL: this.#importMapURL.toString() })],
+      plugins: [
+        ...denoPlugins({ importMapURL: this.#importMapURL.toString() }),
+      ],
       sourcemap: this.#dev ? "linked" : false,
       splitting: true,
       target: ["chrome99", "firefox99", "safari15"],
