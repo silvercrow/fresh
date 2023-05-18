@@ -1,6 +1,6 @@
 import { BuildOptions } from "https://deno.land/x/esbuild@v0.17.11/mod.js";
 import { BUILD_ID } from "./constants.ts";
-import { denoPlugin, esbuild, toFileUrl } from "./deps.ts";
+import { denoPlugins, esbuild, toFileUrl } from "./deps.ts";
 import { Island, Plugin } from "./types.ts";
 
 export interface JSXConfig {
@@ -98,7 +98,7 @@ export class Bundler {
       absWorkingDir,
       outfile: "",
       platform: "neutral",
-      plugins: [denoPlugin({ importMapURL: this.#importMapURL })],
+      plugins: [...denoPlugins({ importMapURL: this.#importMapURL.toString() })],
       sourcemap: this.#dev ? "linked" : false,
       splitting: true,
       target: ["chrome99", "firefox99", "safari15"],

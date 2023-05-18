@@ -39,6 +39,12 @@ interface RouterState {
   state: Record<string, unknown>;
 }
 
+function isObject(value: unknown) {
+  return typeof value === "object" &&
+    !Array.isArray(value) &&
+    value !== null;
+}
+
 interface StaticFile {
   /** The URL to the static file on disk. */
   localUrl: URL;
@@ -108,10 +114,15 @@ export class ServerContext {
     const baseUrl = new URL("./", manifest.baseUrl).href;
 
     const config = manifest.config || { importMap: "./import_map.json" };
-    if (typeof config.importMap !== "string") {
-      throw new Error("deno.json must contain an 'importMap' property.");
+    if (typeof config.importMap !== "string" && !isObject(config.imports)) {
+      throw new Error(
+        "deno.json must contain an 'importMap' or 'imports' property.",
+      );
     }
-    const importMapURL = new URL(config.importMap, manifest.baseUrl);
+    const importMapURL = new URL(
+      config.importMap || "./deno.json",
+      manifest.baseUrl,
+    );
 
     config.compilerOptions ??= {};
 
