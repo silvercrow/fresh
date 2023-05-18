@@ -1,4 +1,5 @@
 {
+  "lock": false,
   "imports": {
     "$fresh/": "../../",
     "preact": "https://esm.sh/preact@10.13.1",
